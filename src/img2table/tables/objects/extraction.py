@@ -4,8 +4,6 @@ from dataclasses import dataclass
 from typing import Optional, List, OrderedDict, NamedTuple, Tuple
 
 import pandas as pd
-from xlsxwriter.format import Format
-from xlsxwriter.worksheet import Worksheet
 
 
 @dataclass
@@ -87,39 +85,6 @@ class ExtractedTable:
         """
         values = [[cell.value for cell in row] for k, row in self.content.items()]
         return pd.DataFrame(values)
-
-    def _to_worksheet(self, sheet: Worksheet, cell_fmt: Optional[Format] = None):
-        """
-        Populate xlsx worksheet with table data
-        :param sheet: xlsxwriter Worksheet
-        :param cell_fmt: xlsxwriter cell format
-        """
-        # Group cells based on hash (merged cells are duplicated over multiple rows/columns in content)
-        dict_cells = dict()
-        for id_row, row in self.content.items():
-            for id_col, cell in enumerate(row):
-                cell_pos = CellPosition(cell=cell, row=id_row, col=id_col)
-                dict_cells[hash(cell)] = dict_cells.get(hash(cell), []) + [cell_pos]
-
-        # Write all cells to sheet
-        for c in dict_cells.values():
-            if len(c) == 1:
-                cell_pos = c.pop()
-                sheet.write(cell_pos.row, cell_pos.col, cell_pos.cell.value, cell_fmt)
-            else:
-                # Get all rectangles
-                for rect in create_all_rectangles(cell_positions=c):
-                    col_left, top_row, col_right, bottom_row = rect
-                    # Case of merged cells
-                    sheet.merge_range(first_row=top_row,
-                                      first_col=col_left,
-                                      last_row=bottom_row,
-                                      last_col=col_right,
-                                      data=c[0].cell.value,
-                                      cell_format=cell_fmt)
-
-        # Autofit worksheet
-        sheet.autofit()
 
     def html_repr(self, title: Optional[str] = None) -> str:
         """

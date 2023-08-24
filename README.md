@@ -411,13 +411,6 @@ ocr = TesseractOCR(n_threads=1, lang="eng")
 
 # Instantiation of document, either an image or a PDF
 doc = Image(src)
-
-# Extraction of tables and creation of a xlsx file containing tables
-doc.to_xlsx(dest=dest,
-            ocr=ocr,
-            implicit_rows=False,
-            borderless_tables=False,
-            min_confidence=50)
 ```
 > <h4>Parameters</h4>
 ><dl>

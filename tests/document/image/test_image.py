@@ -90,18 +90,3 @@ def test_no_ocr():
     assert result[0].bbox == BBox(x1=46, y1=38, x2=830, y2=530)
     assert len(result[0].content) == 19
     assert len(result[0].content[0]) == 5
-
-
-def test_image_excel(mock_tesseract):
-    ocr = TesseractOCR()
-    img = Image(src="test_data/test.png",
-                detect_rotation=True)
-
-    result = img.to_xlsx(dest=BytesIO(), ocr=ocr, implicit_rows=True, min_confidence=50)
-
-    expected = load_workbook(filename="test_data/expected.xlsx")
-    result_wb = load_workbook(filename=result)
-
-    for idx, ws in enumerate(result_wb.worksheets):
-        assert ws.title == expected.worksheets[idx].title
-        assert list(ws.values) == list(expected.worksheets[idx].values)
